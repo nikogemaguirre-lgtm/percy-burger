@@ -502,3 +502,13 @@ Expected: sin errores de tipos; los tests existentes (`cart.test.ts`, `whatsapp.
 git add src/components/Header.tsx
 git commit -m "feat: mostrar el logo real centrado en el header"
 ```
+
+---
+
+## Notas de implementación (post-ejecución)
+
+Al verificar Task 3/4 en el navegador aparecieron tres problemas que el código de este plan no contemplaba. Se corrigieron directamente en `src/components/Hero.tsx` (ver commit "feat: insertar el hero animado en la landing" para el diff exacto):
+
+1. **Piezas invisibles al cargar:** son recortes negros y el fondo inicial también es negro. Se agregó un `filter: invert()` animado (de `invert(1)` a `invert(0)` con `useMotionTemplate`) para que arranquen blancas y terminen negras.
+2. **Pan de arriba/abajo tapados:** con `distanciaAlCentro * 14` (vh) esas dos piezas quedaban fuera del `overflow-hidden` del hero — y al ser la primera sección de la página, no hay scroll hacia arriba que las revele. Se bajó el multiplicador a `6`.
+3. **El logo terminaba de armarse casi fuera de pantalla:** con `offset: ["start start", "end start"]`, el 100% de progreso coincidía con el momento en que el hero casi termina de salir de la vista (no está pineado). Se acotó a `["start start", "center start"]` para que el logo llegue armado a mitad del recorrido del hero y el usuario lo alcance a ver antes de que se scrollee fuera de la pantalla.
