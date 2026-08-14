@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Producto, Tamaño } from "@/data/types";
 import { useCart } from "@/context/CartContext";
+import { ImagenProducto } from "./ImagenProducto";
 
 const ETIQUETAS_TAMAÑO: Record<Tamaño, string> = {
   simple: "Simple",
@@ -23,11 +24,7 @@ export function ProductoCard({ producto }: { producto: Producto }) {
 
   return (
     <div className="flex flex-col rounded-lg border border-brand-black/10 bg-white p-4 shadow-sm">
-      <img
-        src={producto.imagenUrl}
-        alt={producto.nombre}
-        className="mb-3 h-40 w-full rounded-md object-cover"
-      />
+      <ImagenProducto src={producto.imagenUrl} nombre={producto.nombre} />
       <h3 className="text-lg font-semibold text-brand-black">{producto.nombre}</h3>
       <p className="mb-3 flex-1 text-sm text-brand-black/70">{producto.ingredientes}</p>
       {tamañosDisponibles.length > 1 && (

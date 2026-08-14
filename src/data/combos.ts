@@ -6,7 +6,7 @@ export const combos: Combo[] = [
     nombre: "Promo Cheese Doble",
     descripcion: "Cheese Burger Doble + Papas + Gaseosa 500ml",
     precio: 11000,
-    imagenUrl: "/placeholder.svg",
+    imagenUrl: "/productos/promo-cheese-doble.jpg",
     activo: true,
   },
   {
@@ -14,7 +14,7 @@ export const combos: Combo[] = [
     nombre: "Promo Cheese Triple",
     descripcion: "Cheese Burger Triple + Papas + Gaseosa 500ml",
     precio: 12500,
-    imagenUrl: "/placeholder.svg",
+    imagenUrl: "/productos/promo-cheese-triple.jpg",
     activo: true,
   },
   {
@@ -22,7 +22,7 @@ export const combos: Combo[] = [
     nombre: "Promo Crispy x2",
     descripcion: "2 Crispy Triples + 2 Papas",
     precio: 24000,
-    imagenUrl: "/placeholder.svg",
+    imagenUrl: "/productos/promo-crispy-x2.jpg",
     activo: true,
   },
   {
@@ -30,7 +30,7 @@ export const combos: Combo[] = [
     nombre: "Promo Cuarto x2",
     descripcion: "2 Cuarto Triples + 2 Papas",
     precio: 23000,
-    imagenUrl: "/placeholder.svg",
+    imagenUrl: "/productos/promo-cuarto-x2.jpg",
     activo: true,
   },
 ];

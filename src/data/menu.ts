@@ -7,7 +7,7 @@ export const productos: Producto[] = [
     nombre: "Cheese Burger",
     ingredientes: "Pan de papa, carne, cheddar, salsa smash",
     precios: { simple: 8500, doble: 10000, triple: 11500 },
-    imagenUrl: "/placeholder.svg",
+    imagenUrl: "/productos/cheese-burger.jpg",
   },
   {
     id: "bacon-burger",
@@ -47,7 +47,7 @@ export const productos: Producto[] = [
     nombre: "Crispy",
     ingredientes: "Pan de papa, carne, cheddar, cebolla crispy arriba y abajo, barbacoa ahumada arriba y abajo",
     precios: { simple: 9500, doble: 11000, triple: 12500 },
-    imagenUrl: "/placeholder.svg",
+    imagenUrl: "/productos/crispy-burger.jpg",
   },
   {
     id: "cuarto-burger",
@@ -55,7 +55,7 @@ export const productos: Producto[] = [
     nombre: "Cuarto",
     ingredientes: "Pan de papa, carne, cheddar, ketchup, mostaza, cebolla morada picada en cubos",
     precios: { simple: 9000, doble: 10500, triple: 12000 },
-    imagenUrl: "/placeholder.svg",
+    imagenUrl: "/productos/cuarto-burger.jpg",
   },
   {
     id: "hot-provo-burger",
