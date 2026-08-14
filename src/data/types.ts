@@ -23,3 +23,12 @@ export interface Zona {
   nombre: string;
   costoEnvio: number;
 }
+
+export interface LogoPieza {
+  id: string;
+  archivo: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
