@@ -29,6 +29,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const guardado = window.localStorage.getItem(STORAGE_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- One-time localStorage hydration on mount; lazy initializer not viable due to SSR
       if (guardado) setItems(JSON.parse(guardado));
     } catch {
       // localStorage no disponible (ej. modo privado estricto): el carrito sigue en memoria
