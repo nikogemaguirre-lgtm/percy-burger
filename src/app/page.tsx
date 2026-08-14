@@ -2,6 +2,7 @@ import { productos } from "@/data/menu";
 import { combos } from "@/data/combos";
 import { ProductoCard } from "@/components/ProductoCard";
 import { ComboCard } from "@/components/ComboCard";
+import { Hero } from "@/components/Hero";
 import { Producto } from "@/data/types";
 
 const CATEGORIAS: { key: Producto["categoria"]; titulo: string }[] = [
@@ -15,7 +16,9 @@ export default function Home() {
   const combosActivos = combos.filter((c) => c.activo);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
+    <>
+      <Hero />
+      <main className="mx-auto max-w-5xl px-4 py-8">
       {combosActivos.length > 0 && (
         <section className="mb-10">
           <h2 className="mb-4 text-2xl font-bold text-brand-black">Promos</h2>
@@ -40,6 +43,7 @@ export default function Home() {
           </section>
         );
       })}
-    </main>
+      </main>
+    </>
   );
 }

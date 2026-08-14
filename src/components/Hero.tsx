@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useReducedMotion, MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionTemplate, useReducedMotion, MotionValue } from "framer-motion";
 import { logoPiezas, logoCanvas, logoCompletoUrl } from "@/data/logoPiezas";
 import { LogoPieza } from "@/data/types";
 
@@ -16,7 +16,10 @@ function PiezaAnimada({ pieza, progreso }: { pieza: LogoPieza; progreso: MotionV
   const distanciaAlCentro = indice - INDICE_CENTRAL; // negativo arriba, positivo abajo
   const jitter = indice % 2 === 0 ? 1 : -1;
 
-  const offsetYInicial = distanciaAlCentro * 14; // vh extra de dispersión, simétrico arriba/abajo
+  // El hero es la primera sección de la página (scroll 0 = tope del documento),
+  // así que toda la dispersión inicial tiene que caber dentro de esos primeros
+  // 100vh — no hay "arriba" al que scrollear para revelar una pieza que se pase.
+  const offsetYInicial = distanciaAlCentro * 6; // vh extra de dispersión, simétrico arriba/abajo
   const offsetXInicial = jitter * 6; // vw de jitter horizontal
   const rotateInicial = jitter * 8; // grados de jitter
   const rotateYInicial = jitter * 18; // profundidad 3D simulada (perspective del contenedor padre)
@@ -29,6 +32,11 @@ function PiezaAnimada({ pieza, progreso }: { pieza: LogoPieza; progreso: MotionV
   const rotate = useTransform(progreso, [0, 1], [rotateInicial, 0]);
   const rotateY = useTransform(progreso, [0, 1], [rotateYInicial, 0]);
   const scale = useTransform(progreso, [0, 1], [0.85, 1]);
+  // Las piezas son recortes negros del logo real: sobre el fondo negro inicial
+  // serían invisibles, así que arrancan invertidas (blancas) y se invierten de
+  // vuelta a negro a medida que el fondo pasa a naranja.
+  const inversion = useTransform(progreso, [0, 1], [1, 0]);
+  const filter = useMotionTemplate`invert(${inversion})`;
 
   const leftPct = (pieza.x / logoCanvas.width) * 100;
   const topPct = (pieza.y / logoCanvas.height) * 100;
@@ -49,6 +57,7 @@ function PiezaAnimada({ pieza, progreso }: { pieza: LogoPieza; progreso: MotionV
         rotate,
         rotateY,
         scale,
+        filter,
       }}
     />
   );
@@ -56,7 +65,12 @@ function PiezaAnimada({ pieza, progreso }: { pieza: LogoPieza; progreso: MotionV
 
 function HeroAnimado() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  // El hero no queda pineado (scroll libre), así que si la animación durara
+  // hasta que el hero termina de salir de pantalla ("end start"), el logo se
+  // terminaría de armar justo cuando ya casi no queda hero visible. Cortando
+  // en la mitad del recorrido ("center start") el usuario llega a ver el
+  // logo completo antes de que el hero se termine de ir de la vista.
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "center start"] });
   const backgroundColor = useTransform(scrollYProgress, [0, 1], ["#000000", "#EF8B34"]);
 
   return (
