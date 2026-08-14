@@ -1,6 +1,6 @@
 import { ItemCarrito } from "./cart";
 
-const NUMERO_WHATSAPP_PERCY = "5492616968888";
+export const NUMERO_WHATSAPP_PERCY = "5492616968888";
 
 export interface DatosCheckout {
   nombre: string;

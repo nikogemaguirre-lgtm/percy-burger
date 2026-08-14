@@ -3,6 +3,7 @@ import { combos } from "@/data/combos";
 import { ProductoCard } from "@/components/ProductoCard";
 import { ComboCard } from "@/components/ComboCard";
 import { Hero } from "@/components/Hero";
+import { Ubicacion } from "@/components/Ubicacion";
 import { Producto } from "@/data/types";
 
 const CATEGORIAS: { key: Producto["categoria"]; titulo: string }[] = [
@@ -44,6 +45,7 @@ export default function Home() {
         );
       })}
       </main>
+      <Ubicacion />
     </>
   );
 }
