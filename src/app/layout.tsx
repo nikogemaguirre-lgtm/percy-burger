@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { Header } from "@/components/Header";
+import { CartDrawer } from "@/components/CartDrawer";
 
 export const metadata: Metadata = {
   title: "Percy Burger",
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartProvider>
           <Header />
           {children}
+          <CartDrawer />
         </CartProvider>
       </body>
     </html>
