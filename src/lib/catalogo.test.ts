@@ -48,16 +48,16 @@ describe("mapRowAProducto", () => {
 });
 
 describe("mapRowACombo", () => {
-  it("mapea una fila de combo", () => {
-    const row: ComboRow = {
-      id: "promo-cheese-doble",
-      nombre: "Promo Cheese Doble",
-      descripcion: "Cheese Burger Doble + Papas + Gaseosa 500ml",
-      precio: 11000,
-      imagen_url: "/productos/promo-cheese-doble.jpg",
-      activo: true,
-    };
+  const row: ComboRow = {
+    id: "promo-cheese-doble",
+    nombre: "Promo Cheese Doble",
+    descripcion: "Cheese Burger Doble + Papas + Gaseosa 500ml",
+    precio: 11000,
+    imagen_url: "/productos/promo-cheese-doble.jpg",
+    activo: true,
+  };
 
+  it("mapea una fila de combo sin productos asociados", () => {
     expect(mapRowACombo(row)).toEqual({
       id: "promo-cheese-doble",
       nombre: "Promo Cheese Doble",
@@ -65,6 +65,24 @@ describe("mapRowACombo", () => {
       precio: 11000,
       imagenUrl: "/productos/promo-cheese-doble.jpg",
       activo: true,
+      productos: [],
+    });
+  });
+
+  it("incluye los productos asociados cuando se pasan", () => {
+    const productos = [
+      { productoId: "cheese-burger", cantidad: 1 },
+      { productoId: "papas", cantidad: 1 },
+    ];
+
+    expect(mapRowACombo(row, productos)).toEqual({
+      id: "promo-cheese-doble",
+      nombre: "Promo Cheese Doble",
+      descripcion: "Cheese Burger Doble + Papas + Gaseosa 500ml",
+      precio: 11000,
+      imagenUrl: "/productos/promo-cheese-doble.jpg",
+      activo: true,
+      productos,
     });
   });
 });

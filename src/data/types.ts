@@ -9,6 +9,11 @@ export interface Producto {
   imagenUrl: string;
 }
 
+export interface ComboItem {
+  productoId: string;
+  cantidad: number;
+}
+
 export interface Combo {
   id: string;
   nombre: string;
@@ -16,6 +21,7 @@ export interface Combo {
   precio: number;
   imagenUrl: string;
   activo: boolean;
+  productos: ComboItem[];
 }
 
 export interface Zona {

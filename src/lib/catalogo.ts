@@ -1,4 +1,4 @@
-import { Producto, Combo } from "@/data/types";
+import { Producto, Combo, ComboItem } from "@/data/types";
 import { createSupabaseServerClient } from "./supabase/server";
 
 export interface ProductoRow {
@@ -36,7 +36,7 @@ export function mapRowAProducto(row: ProductoRow): Producto {
   };
 }
 
-export function mapRowACombo(row: ComboRow): Combo {
+export function mapRowACombo(row: ComboRow, productos: ComboItem[] = []): Combo {
   return {
     id: row.id,
     nombre: row.nombre,
@@ -44,6 +44,7 @@ export function mapRowACombo(row: ComboRow): Combo {
     precio: row.precio,
     imagenUrl: row.imagen_url,
     activo: row.activo,
+    productos,
   };
 }
 
@@ -54,9 +55,19 @@ export async function obtenerProductos(): Promise<Producto[]> {
   return (data as ProductoRow[]).map(mapRowAProducto);
 }
 
+interface ComboProductoRow {
+  producto_id: string;
+  cantidad: number;
+}
+
 export async function obtenerCombos(): Promise<Combo[]> {
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.from("combos").select("*");
+  const { data, error } = await supabase.from("combos").select("*, combo_productos(producto_id, cantidad)");
   if (error) throw new Error(`No se pudieron obtener los combos: ${error.message}`);
-  return (data as ComboRow[]).map(mapRowACombo);
+  return (data as (ComboRow & { combo_productos: ComboProductoRow[] })[]).map((row) =>
+    mapRowACombo(
+      row,
+      row.combo_productos.map((item) => ({ productoId: item.producto_id, cantidad: item.cantidad })),
+    ),
+  );
 }
