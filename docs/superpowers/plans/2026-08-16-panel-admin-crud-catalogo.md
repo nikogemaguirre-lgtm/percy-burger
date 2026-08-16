@@ -38,8 +38,8 @@ Este SQL ya está documentado en `docs/superpowers/specs/2026-08-16-panel-admin-
 ```sql
 create table if not exists combo_productos (
   id uuid primary key default gen_random_uuid(),
-  combo_id uuid not null references combos(id) on delete cascade,
-  producto_id uuid not null references productos(id) on delete restrict,
+  combo_id text not null references combos(id) on delete cascade,
+  producto_id text not null references productos(id) on delete restrict,
   cantidad int not null default 1 check (cantidad > 0)
 );
 
