@@ -1,7 +1,27 @@
-import { describe, it, expect } from "vitest";
-import { combosQueUsanProducto, validarProducto, validarCombo, validarImagen } from "./catalogo-admin";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Combo } from "@/data/types";
-import type { ProductoInput, ComboInput } from "./catalogo-admin";
+
+const { mockFrom } = vi.hoisted(() => ({ mockFrom: vi.fn() }));
+
+vi.mock("./supabase/client", () => ({
+  createSupabaseBrowserClient: () => ({ from: mockFrom }),
+}));
+
+import {
+  combosQueUsanProducto,
+  validarProducto,
+  validarCombo,
+  validarImagen,
+  crearProducto,
+  actualizarProducto,
+  borrarProducto,
+  type ProductoInput,
+  type ComboInput,
+} from "./catalogo-admin";
+
+beforeEach(() => {
+  mockFrom.mockReset();
+});
 
 describe("combosQueUsanProducto", () => {
   const combos: Combo[] = [
@@ -93,5 +113,138 @@ describe("validarImagen", () => {
   it("rechaza un archivo demasiado pesado", () => {
     const archivo = { type: "image/jpeg", size: 6 * 1024 * 1024 } as File;
     expect(validarImagen(archivo)).toBe("La imagen no puede pesar más de 5MB.");
+  });
+});
+
+describe("crearProducto", () => {
+  it("inserta el producto y devuelve el resultado mapeado", async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: {
+        id: "papas-fritas",
+        categoria: "extra",
+        nombre: "Papas Fritas",
+        ingredientes: "Porción grande",
+        precio_simple: 4000,
+        precio_doble: null,
+        precio_triple: null,
+        imagen_url: "/placeholder.svg",
+      },
+      error: null,
+    });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    mockFrom.mockReturnValue({ insert });
+
+    const input: ProductoInput = {
+      categoria: "extra",
+      nombre: "Papas Fritas",
+      ingredientes: "Porción grande",
+      precios: { simple: 4000 },
+      imagenUrl: "/placeholder.svg",
+    };
+
+    const resultado = await crearProducto(input);
+
+    expect(mockFrom).toHaveBeenCalledWith("productos");
+    expect(insert).toHaveBeenCalledWith({
+      categoria: "extra",
+      nombre: "Papas Fritas",
+      ingredientes: "Porción grande",
+      precio_simple: 4000,
+      precio_doble: null,
+      precio_triple: null,
+      imagen_url: "/placeholder.svg",
+    });
+    expect(resultado).toEqual({
+      id: "papas-fritas",
+      categoria: "extra",
+      nombre: "Papas Fritas",
+      ingredientes: "Porción grande",
+      precios: { simple: 4000 },
+      imagenUrl: "/placeholder.svg",
+    });
+  });
+
+  it("lanza un error si Supabase devuelve error", async () => {
+    const single = vi.fn().mockResolvedValue({ data: null, error: { message: "duplicate key" } });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    mockFrom.mockReturnValue({ insert });
+
+    const input: ProductoInput = {
+      categoria: "extra",
+      nombre: "Papas Fritas",
+      ingredientes: "Porción grande",
+      precios: { simple: 4000 },
+      imagenUrl: "/placeholder.svg",
+    };
+
+    await expect(crearProducto(input)).rejects.toThrow("duplicate key");
+  });
+});
+
+describe("actualizarProducto", () => {
+  it("actualiza el producto y devuelve el resultado mapeado", async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: {
+        id: "papas",
+        categoria: "extra",
+        nombre: "Papas Grandes",
+        ingredientes: "Porción grande",
+        precio_simple: 4500,
+        precio_doble: null,
+        precio_triple: null,
+        imagen_url: "/placeholder.svg",
+      },
+      error: null,
+    });
+    const select = vi.fn(() => ({ single }));
+    const eq = vi.fn(() => ({ select }));
+    const update = vi.fn(() => ({ eq }));
+    mockFrom.mockReturnValue({ update });
+
+    const input: ProductoInput = {
+      categoria: "extra",
+      nombre: "Papas Grandes",
+      ingredientes: "Porción grande",
+      precios: { simple: 4500 },
+      imagenUrl: "/placeholder.svg",
+    };
+
+    const resultado = await actualizarProducto("papas", input);
+
+    expect(mockFrom).toHaveBeenCalledWith("productos");
+    expect(update).toHaveBeenCalledWith({
+      categoria: "extra",
+      nombre: "Papas Grandes",
+      ingredientes: "Porción grande",
+      precio_simple: 4500,
+      precio_doble: null,
+      precio_triple: null,
+      imagen_url: "/placeholder.svg",
+    });
+    expect(eq).toHaveBeenCalledWith("id", "papas");
+    expect(resultado.nombre).toBe("Papas Grandes");
+  });
+});
+
+describe("borrarProducto", () => {
+  it("borra el producto por id", async () => {
+    const eq = vi.fn().mockResolvedValue({ error: null });
+    const del = vi.fn(() => ({ eq }));
+    mockFrom.mockReturnValue({ delete: del });
+
+    await borrarProducto("papas");
+
+    expect(mockFrom).toHaveBeenCalledWith("productos");
+    expect(eq).toHaveBeenCalledWith("id", "papas");
+  });
+
+  it("lanza un error si Supabase lo rechaza (ej. restricción de combo)", async () => {
+    const eq = vi.fn().mockResolvedValue({ error: { message: "violates foreign key constraint" } });
+    const del = vi.fn(() => ({ eq }));
+    mockFrom.mockReturnValue({ delete: del });
+
+    await expect(borrarProducto("papas")).rejects.toThrow("violates foreign key constraint");
   });
 });

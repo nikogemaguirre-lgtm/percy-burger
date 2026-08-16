@@ -1,4 +1,6 @@
 import type { Producto, Combo, ComboItem } from "@/data/types";
+import { createSupabaseBrowserClient } from "./supabase/client";
+import { mapRowAProducto, type ProductoRow } from "./catalogo";
 
 export interface ProductoInput {
   categoria: Producto["categoria"];
@@ -40,4 +42,51 @@ export function validarImagen(archivo: File): string | null {
   if (!TIPOS_IMAGEN_ACEPTADOS.includes(archivo.type)) return "La imagen debe ser JPG, PNG o WEBP.";
   if (archivo.size > TAMAÑO_MAXIMO_IMAGEN) return "La imagen no puede pesar más de 5MB.";
   return null;
+}
+
+export async function crearProducto(input: ProductoInput): Promise<Producto> {
+  const supabase = createSupabaseBrowserClient();
+  const { data, error } = await supabase
+    .from("productos")
+    .insert({
+      categoria: input.categoria,
+      nombre: input.nombre,
+      ingredientes: input.ingredientes,
+      precio_simple: input.precios.simple,
+      precio_doble: input.precios.doble ?? null,
+      precio_triple: input.precios.triple ?? null,
+      imagen_url: input.imagenUrl,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return mapRowAProducto(data as ProductoRow);
+}
+
+export async function actualizarProducto(id: string, input: ProductoInput): Promise<Producto> {
+  const supabase = createSupabaseBrowserClient();
+  const { data, error } = await supabase
+    .from("productos")
+    .update({
+      categoria: input.categoria,
+      nombre: input.nombre,
+      ingredientes: input.ingredientes,
+      precio_simple: input.precios.simple,
+      precio_doble: input.precios.doble ?? null,
+      precio_triple: input.precios.triple ?? null,
+      imagen_url: input.imagenUrl,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return mapRowAProducto(data as ProductoRow);
+}
+
+export async function borrarProducto(id: string): Promise<void> {
+  const supabase = createSupabaseBrowserClient();
+  const { error } = await supabase.from("productos").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 }
