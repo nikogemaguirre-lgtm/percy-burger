@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { obtenerProductos, obtenerCombos } from "@/lib/catalogo";
 import { CerrarSesionButton } from "@/components/admin/CerrarSesionButton";
 import { ProductosAdmin } from "@/components/admin/ProductosAdmin";
+import { CombosAdmin } from "@/components/admin/CombosAdmin";
 
 export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
@@ -23,6 +24,7 @@ export default async function AdminPage() {
         <CerrarSesionButton />
       </div>
       <ProductosAdmin productosIniciales={productos} combos={combos} />
+      <CombosAdmin combosIniciales={combos} productosDisponibles={productos} />
     </main>
   );
 }
