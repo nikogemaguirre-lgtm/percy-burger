@@ -52,6 +52,28 @@ describe("construirTextoPedido", () => {
 
     expect(texto).toContain("Retiro en el local (Falucho 440, Dorrego, Guaymallén)");
   });
+
+  it("agrega una línea de aclaración debajo del item cuando tiene nota", () => {
+    const itemsConNota: ItemCarrito[] = [{ ...items[0], nota: "sin cebolla" }];
+    const texto = construirTextoPedido(itemsConNota, 17000, 0, {
+      nombre: "Juan",
+      telefono: "2611234567",
+      modalidad: "retiro",
+    });
+
+    expect(texto).toContain("2x Cheese Burger (Simple) — $17.000\n  (sin cebolla)");
+  });
+
+  it("no agrega línea de aclaración cuando el item no tiene nota", () => {
+    const texto = construirTextoPedido(items, 17000, 0, {
+      nombre: "Juan",
+      telefono: "2611234567",
+      modalidad: "retiro",
+    });
+
+    expect(texto).not.toContain("(sin cebolla)");
+    expect(texto).toContain("2x Cheese Burger (Simple) — $17.000\n");
+  });
 });
 
 describe("construirUrlWhatsapp", () => {

@@ -22,7 +22,10 @@ export function construirTextoPedido(
   datos: DatosCheckout
 ): string {
   const lineasItems = items
-    .map((item) => `- ${item.cantidad}x ${item.nombre} — ${formatearPrecio(item.precioUnitario * item.cantidad)}`)
+    .map((item) => {
+      const linea = `- ${item.cantidad}x ${item.nombre} — ${formatearPrecio(item.precioUnitario * item.cantidad)}`;
+      return item.nota ? `${linea}\n  (${item.nota})` : linea;
+    })
     .join("\n");
 
   const lineasEntrega =
