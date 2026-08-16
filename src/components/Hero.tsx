@@ -76,6 +76,9 @@ function HeroAnimado() {
   return (
     <div ref={heroRef} className="relative h-screen overflow-hidden" style={{ perspective: 1000 }}>
       <motion.div className="absolute inset-0" style={{ backgroundColor }} />
+      <p className="absolute left-1/2 top-10 -translate-x-1/2 text-center text-sm font-semibold uppercase tracking-[0.3em] text-white/70">
+  Hamburguesas
+</p>
       <div
         className="absolute left-1/2 top-[65%] w-full max-w-xl -translate-x-1/2 -translate-y-1/2"
         style={{ transformStyle: "preserve-3d", aspectRatio: `${logoCanvas.width} / ${logoCanvas.height}` }}
