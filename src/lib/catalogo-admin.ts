@@ -161,3 +161,19 @@ export async function borrarCombo(id: string): Promise<void> {
   const { error } = await supabase.from("combos").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
+
+export async function subirImagenCatalogo(
+  tipo: "productos" | "combos",
+  id: string,
+  archivo: File,
+): Promise<string> {
+  const supabase = createSupabaseBrowserClient();
+  const extension = archivo.name.split(".").pop();
+  const path = `${tipo}/${id}-${Date.now()}.${extension}`;
+
+  const { error: errorSubida } = await supabase.storage.from("catalogo").upload(path, archivo);
+  if (errorSubida) throw new Error(errorSubida.message);
+
+  const { data } = supabase.storage.from("catalogo").getPublicUrl(path);
+  return data.publicUrl;
+}

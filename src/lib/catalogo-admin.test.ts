@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Combo } from "@/data/types";
 
-const { mockFrom } = vi.hoisted(() => ({ mockFrom: vi.fn() }));
+const { mockFrom, mockStorageFrom } = vi.hoisted(() => ({ mockFrom: vi.fn(), mockStorageFrom: vi.fn() }));
 
 vi.mock("./supabase/client", () => ({
-  createSupabaseBrowserClient: () => ({ from: mockFrom }),
+  createSupabaseBrowserClient: () => ({ from: mockFrom, storage: { from: mockStorageFrom } }),
 }));
 
 import {
@@ -18,12 +18,14 @@ import {
   crearCombo,
   actualizarCombo,
   borrarCombo,
+  subirImagenCatalogo,
   type ProductoInput,
   type ComboInput,
 } from "./catalogo-admin";
 
 beforeEach(() => {
   mockFrom.mockReset();
+  mockStorageFrom.mockReset();
 });
 
 describe("combosQueUsanProducto", () => {
@@ -399,5 +401,35 @@ describe("borrarCombo", () => {
 
     expect(mockFrom).toHaveBeenCalledWith("combos");
     expect(eq).toHaveBeenCalledWith("id", "promo-vieja");
+  });
+});
+
+describe("subirImagenCatalogo", () => {
+  it("sube el archivo y devuelve la URL pública", async () => {
+    const upload = vi.fn().mockResolvedValue({ error: null });
+    const getPublicUrl = vi.fn().mockReturnValue({
+      data: { publicUrl: "https://ejemplo.supabase.co/storage/v1/object/public/catalogo/productos/papas-123.jpg" },
+    });
+    mockStorageFrom.mockReturnValue({ upload, getPublicUrl });
+
+    const archivo = { name: "foto.jpg", type: "image/jpeg", size: 1000 } as File;
+    vi.spyOn(Date, "now").mockReturnValue(123);
+
+    const url = await subirImagenCatalogo("productos", "papas", archivo);
+
+    expect(mockStorageFrom).toHaveBeenCalledWith("catalogo");
+    expect(upload).toHaveBeenCalledWith("productos/papas-123.jpg", archivo);
+    expect(url).toBe("https://ejemplo.supabase.co/storage/v1/object/public/catalogo/productos/papas-123.jpg");
+
+    vi.restoreAllMocks();
+  });
+
+  it("lanza un error si la subida falla", async () => {
+    const upload = vi.fn().mockResolvedValue({ error: { message: "storage error" } });
+    mockStorageFrom.mockReturnValue({ upload, getPublicUrl: vi.fn() });
+
+    const archivo = { name: "foto.jpg", type: "image/jpeg", size: 1000 } as File;
+
+    await expect(subirImagenCatalogo("productos", "papas", archivo)).rejects.toThrow("storage error");
   });
 });
