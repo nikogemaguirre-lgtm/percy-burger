@@ -3,6 +3,7 @@ import { combos } from "@/data/combos";
 import { ProductoCard } from "@/components/ProductoCard";
 import { ComboCard } from "@/components/ComboCard";
 import { Hero } from "@/components/Hero";
+import { Resenas } from "@/components/Resenas";
 import { Ubicacion } from "@/components/Ubicacion";
 import { Producto } from "@/data/types";
 
@@ -45,6 +46,7 @@ export default function Home() {
         );
       })}
       </main>
+      <Resenas />
       <Ubicacion />
     </>
   );
