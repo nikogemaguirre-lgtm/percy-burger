@@ -76,7 +76,10 @@ function HeroAnimado() {
   return (
     <div ref={heroRef} className="relative h-screen overflow-hidden" style={{ perspective: 1000 }}>
       <motion.div className="absolute inset-0" style={{ backgroundColor }} />
-      <div className="relative mx-auto h-full max-w-xl" style={{ transformStyle: "preserve-3d" }}>
+      <div
+        className="absolute left-1/2 top-[65%] w-full max-w-xl -translate-x-1/2 -translate-y-1/2"
+        style={{ transformStyle: "preserve-3d", aspectRatio: `${logoCanvas.width} / ${logoCanvas.height}` }}
+      >
         {logoPiezas.map((pieza) => (
           <PiezaAnimada key={pieza.id} pieza={pieza} progreso={scrollYProgress} />
         ))}
