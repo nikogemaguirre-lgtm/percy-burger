@@ -15,6 +15,9 @@ import {
   crearProducto,
   actualizarProducto,
   borrarProducto,
+  crearCombo,
+  actualizarCombo,
+  borrarCombo,
   type ProductoInput,
   type ComboInput,
 } from "./catalogo-admin";
@@ -246,5 +249,155 @@ describe("borrarProducto", () => {
     mockFrom.mockReturnValue({ delete: del });
 
     await expect(borrarProducto("papas")).rejects.toThrow("violates foreign key constraint");
+  });
+});
+
+describe("crearCombo", () => {
+  it("inserta el combo y sus productos, y devuelve el resultado mapeado", async () => {
+    const singleCombo = vi.fn().mockResolvedValue({
+      data: {
+        id: "promo-nueva",
+        nombre: "Promo Nueva",
+        descripcion: "Cheese + Papas",
+        precio: 9000,
+        imagen_url: "/placeholder.svg",
+        activo: true,
+      },
+      error: null,
+    });
+    const selectCombo = vi.fn(() => ({ single: singleCombo }));
+    const insertCombo = vi.fn(() => ({ select: selectCombo }));
+    const insertItems = vi.fn().mockResolvedValue({ error: null });
+
+    mockFrom.mockImplementation((tabla: string) => {
+      if (tabla === "combos") return { insert: insertCombo };
+      if (tabla === "combo_productos") return { insert: insertItems };
+      throw new Error(`tabla inesperada: ${tabla}`);
+    });
+
+    const input: ComboInput = {
+      nombre: "Promo Nueva",
+      descripcion: "Cheese + Papas",
+      precio: 9000,
+      imagenUrl: "/placeholder.svg",
+      activo: true,
+      productos: [{ productoId: "cheese-burger", cantidad: 1 }],
+    };
+
+    const resultado = await crearCombo(input);
+
+    expect(insertCombo).toHaveBeenCalledWith({
+      nombre: "Promo Nueva",
+      descripcion: "Cheese + Papas",
+      precio: 9000,
+      imagen_url: "/placeholder.svg",
+      activo: true,
+    });
+    expect(insertItems).toHaveBeenCalledWith([
+      { combo_id: "promo-nueva", producto_id: "cheese-burger", cantidad: 1 },
+    ]);
+    expect(resultado).toEqual({
+      id: "promo-nueva",
+      nombre: "Promo Nueva",
+      descripcion: "Cheese + Papas",
+      precio: 9000,
+      imagenUrl: "/placeholder.svg",
+      activo: true,
+      productos: [{ productoId: "cheese-burger", cantidad: 1 }],
+    });
+  });
+
+  it("no inserta en combo_productos si el combo no tiene productos", async () => {
+    const singleCombo = vi.fn().mockResolvedValue({
+      data: {
+        id: "promo-vacia",
+        nombre: "Promo Vacía",
+        descripcion: "",
+        precio: 1000,
+        imagen_url: "/placeholder.svg",
+        activo: true,
+      },
+      error: null,
+    });
+    const selectCombo = vi.fn(() => ({ single: singleCombo }));
+    const insertCombo = vi.fn(() => ({ select: selectCombo }));
+    const insertItems = vi.fn();
+
+    mockFrom.mockImplementation((tabla: string) => {
+      if (tabla === "combos") return { insert: insertCombo };
+      if (tabla === "combo_productos") return { insert: insertItems };
+      throw new Error(`tabla inesperada: ${tabla}`);
+    });
+
+    await crearCombo({
+      nombre: "Promo Vacía",
+      descripcion: "",
+      precio: 1000,
+      imagenUrl: "/placeholder.svg",
+      activo: true,
+      productos: [],
+    });
+
+    expect(insertItems).not.toHaveBeenCalled();
+  });
+});
+
+describe("actualizarCombo", () => {
+  it("actualiza el combo, reemplaza sus productos y devuelve el resultado mapeado", async () => {
+    const singleCombo = vi.fn().mockResolvedValue({
+      data: {
+        id: "promo-cheese-doble",
+        nombre: "Promo Cheese Doble",
+        descripcion: "Actualizada",
+        precio: 12000,
+        imagen_url: "/placeholder.svg",
+        activo: true,
+      },
+      error: null,
+    });
+    const selectCombo = vi.fn(() => ({ single: singleCombo }));
+    const eqUpdate = vi.fn(() => ({ select: selectCombo }));
+    const updateCombo = vi.fn(() => ({ eq: eqUpdate }));
+
+    const eqDelete = vi.fn().mockResolvedValue({ error: null });
+    const deleteItems = vi.fn(() => ({ eq: eqDelete }));
+    const insertItems = vi.fn().mockResolvedValue({ error: null });
+
+    mockFrom.mockImplementation((tabla: string) => {
+      if (tabla === "combos") return { update: updateCombo };
+      if (tabla === "combo_productos") return { delete: deleteItems, insert: insertItems };
+      throw new Error(`tabla inesperada: ${tabla}`);
+    });
+
+    const input: ComboInput = {
+      nombre: "Promo Cheese Doble",
+      descripcion: "Actualizada",
+      precio: 12000,
+      imagenUrl: "/placeholder.svg",
+      activo: true,
+      productos: [{ productoId: "cheese-burger", cantidad: 2 }],
+    };
+
+    const resultado = await actualizarCombo("promo-cheese-doble", input);
+
+    expect(eqUpdate).toHaveBeenCalledWith("id", "promo-cheese-doble");
+    expect(eqDelete).toHaveBeenCalledWith("combo_id", "promo-cheese-doble");
+    expect(insertItems).toHaveBeenCalledWith([
+      { combo_id: "promo-cheese-doble", producto_id: "cheese-burger", cantidad: 2 },
+    ]);
+    expect(resultado.productos).toEqual([{ productoId: "cheese-burger", cantidad: 2 }]);
+  });
+});
+
+describe("borrarCombo", () => {
+  it("borra el combo por id", async () => {
+    const eq = vi.fn().mockResolvedValue({ error: null });
+    const del = vi.fn(() => ({ eq }));
+    mockFrom.mockReturnValue({ delete: del });
+
+    await borrarCombo("promo-vieja");
+
+    expect(mockFrom).toHaveBeenCalledWith("combos");
+    expect(eq).toHaveBeenCalledWith("id", "promo-vieja");
   });
 });

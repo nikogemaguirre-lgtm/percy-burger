@@ -1,6 +1,6 @@
 import type { Producto, Combo, ComboItem } from "@/data/types";
 import { createSupabaseBrowserClient } from "./supabase/client";
-import { mapRowAProducto, type ProductoRow } from "./catalogo";
+import { mapRowAProducto, mapRowACombo, type ProductoRow, type ComboRow } from "./catalogo";
 
 export interface ProductoInput {
   categoria: Producto["categoria"];
@@ -88,5 +88,76 @@ export async function actualizarProducto(id: string, input: ProductoInput): Prom
 export async function borrarProducto(id: string): Promise<void> {
   const supabase = createSupabaseBrowserClient();
   const { error } = await supabase.from("productos").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export async function crearCombo(input: ComboInput): Promise<Combo> {
+  const supabase = createSupabaseBrowserClient();
+  const { data: comboData, error: comboError } = await supabase
+    .from("combos")
+    .insert({
+      nombre: input.nombre,
+      descripcion: input.descripcion,
+      precio: input.precio,
+      imagen_url: input.imagenUrl,
+      activo: input.activo,
+    })
+    .select()
+    .single();
+
+  if (comboError) throw new Error(comboError.message);
+  const combo = comboData as ComboRow;
+
+  if (input.productos.length > 0) {
+    const { error: itemsError } = await supabase.from("combo_productos").insert(
+      input.productos.map((item) => ({
+        combo_id: combo.id,
+        producto_id: item.productoId,
+        cantidad: item.cantidad,
+      })),
+    );
+    if (itemsError) throw new Error(itemsError.message);
+  }
+
+  return mapRowACombo(combo, input.productos);
+}
+
+export async function actualizarCombo(id: string, input: ComboInput): Promise<Combo> {
+  const supabase = createSupabaseBrowserClient();
+  const { data: comboData, error: comboError } = await supabase
+    .from("combos")
+    .update({
+      nombre: input.nombre,
+      descripcion: input.descripcion,
+      precio: input.precio,
+      imagen_url: input.imagenUrl,
+      activo: input.activo,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (comboError) throw new Error(comboError.message);
+
+  const { error: borrarError } = await supabase.from("combo_productos").delete().eq("combo_id", id);
+  if (borrarError) throw new Error(borrarError.message);
+
+  if (input.productos.length > 0) {
+    const { error: itemsError } = await supabase.from("combo_productos").insert(
+      input.productos.map((item) => ({
+        combo_id: id,
+        producto_id: item.productoId,
+        cantidad: item.cantidad,
+      })),
+    );
+    if (itemsError) throw new Error(itemsError.message);
+  }
+
+  return mapRowACombo(comboData as ComboRow, input.productos);
+}
+
+export async function borrarCombo(id: string): Promise<void> {
+  const supabase = createSupabaseBrowserClient();
+  const { error } = await supabase.from("combos").delete().eq("id", id);
   if (error) throw new Error(error.message);
 }
