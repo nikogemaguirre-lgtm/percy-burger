@@ -6,6 +6,7 @@ export interface ItemCarrito {
   tamaño?: Tamaño;
   precioUnitario: number;
   cantidad: number;
+  nota?: string;
 }
 
 export function agregarItem(carrito: ItemCarrito[], item: ItemCarrito): ItemCarrito[] {
@@ -25,6 +26,10 @@ export function actualizarCantidad(carrito: ItemCarrito[], id: string, cantidad:
     return quitarItem(carrito, id);
   }
   return carrito.map((i) => (i.id === id ? { ...i, cantidad } : i));
+}
+
+export function actualizarNota(carrito: ItemCarrito[], id: string, nota: string): ItemCarrito[] {
+  return carrito.map((i) => (i.id === id ? { ...i, nota } : i));
 }
 
 export function calcularSubtotal(carrito: ItemCarrito[]): number {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { agregarItem, quitarItem, actualizarCantidad, calcularSubtotal, ItemCarrito } from "./cart";
+import { agregarItem, quitarItem, actualizarCantidad, actualizarNota, calcularSubtotal, ItemCarrito } from "./cart";
 
 const cheeseSimple: ItemCarrito = {
   id: "cheese-burger-simple",
@@ -44,6 +44,18 @@ describe("actualizarCantidad", () => {
   it("elimina el item si la cantidad baja a 0 o menos", () => {
     const resultado = actualizarCantidad([cheeseSimple], "cheese-burger-simple", 0);
     expect(resultado).toEqual([]);
+  });
+});
+
+describe("actualizarNota", () => {
+  it("actualiza la nota de un item existente", () => {
+    const resultado = actualizarNota([cheeseSimple], "cheese-burger-simple", "sin cebolla");
+    expect(resultado[0].nota).toBe("sin cebolla");
+  });
+
+  it("no afecta a otros items del carrito", () => {
+    const resultado = actualizarNota([cheeseSimple, papas], "cheese-burger-simple", "sin cebolla");
+    expect(resultado[1]).toEqual(papas);
   });
 });
 
