@@ -32,3 +32,10 @@ export interface LogoPieza {
   width: number;
   height: number;
 }
+
+export interface Reseña {
+  id: string;
+  autor: string;
+  texto: string;
+  antiguedad: string;
+}
