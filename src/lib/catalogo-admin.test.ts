@@ -12,6 +12,7 @@ import {
   validarProducto,
   validarCombo,
   validarImagen,
+  generarId,
   crearProducto,
   actualizarProducto,
   borrarProducto,
@@ -121,11 +122,20 @@ describe("validarImagen", () => {
   });
 });
 
+describe("generarId", () => {
+  it("genera un slug en minúsculas sin acentos, con sufijo único", () => {
+    vi.spyOn(Date, "now").mockReturnValue(123);
+    expect(generarId("Papas Fritas Grandes")).toBe("papas-fritas-grandes-3f");
+    vi.restoreAllMocks();
+  });
+});
+
 describe("crearProducto", () => {
   it("inserta el producto y devuelve el resultado mapeado", async () => {
+    vi.spyOn(Date, "now").mockReturnValue(123);
     const single = vi.fn().mockResolvedValue({
       data: {
-        id: "papas-fritas",
+        id: "papas-fritas-3f",
         categoria: "extra",
         nombre: "Papas Fritas",
         ingredientes: "Porción grande",
@@ -152,6 +162,7 @@ describe("crearProducto", () => {
 
     expect(mockFrom).toHaveBeenCalledWith("productos");
     expect(insert).toHaveBeenCalledWith({
+      id: "papas-fritas-3f",
       categoria: "extra",
       nombre: "Papas Fritas",
       ingredientes: "Porción grande",
@@ -161,13 +172,15 @@ describe("crearProducto", () => {
       imagen_url: "/placeholder.svg",
     });
     expect(resultado).toEqual({
-      id: "papas-fritas",
+      id: "papas-fritas-3f",
       categoria: "extra",
       nombre: "Papas Fritas",
       ingredientes: "Porción grande",
       precios: { simple: 4000 },
       imagenUrl: "/placeholder.svg",
     });
+
+    vi.restoreAllMocks();
   });
 
   it("lanza un error si Supabase devuelve error", async () => {
@@ -256,9 +269,10 @@ describe("borrarProducto", () => {
 
 describe("crearCombo", () => {
   it("inserta el combo y sus productos, y devuelve el resultado mapeado", async () => {
+    vi.spyOn(Date, "now").mockReturnValue(123);
     const singleCombo = vi.fn().mockResolvedValue({
       data: {
-        id: "promo-nueva",
+        id: "promo-nueva-3f",
         nombre: "Promo Nueva",
         descripcion: "Cheese + Papas",
         precio: 9000,
@@ -289,6 +303,7 @@ describe("crearCombo", () => {
     const resultado = await crearCombo(input);
 
     expect(insertCombo).toHaveBeenCalledWith({
+      id: "promo-nueva-3f",
       nombre: "Promo Nueva",
       descripcion: "Cheese + Papas",
       precio: 9000,
@@ -296,10 +311,10 @@ describe("crearCombo", () => {
       activo: true,
     });
     expect(insertItems).toHaveBeenCalledWith([
-      { combo_id: "promo-nueva", producto_id: "cheese-burger", cantidad: 1 },
+      { combo_id: "promo-nueva-3f", producto_id: "cheese-burger", cantidad: 1 },
     ]);
     expect(resultado).toEqual({
-      id: "promo-nueva",
+      id: "promo-nueva-3f",
       nombre: "Promo Nueva",
       descripcion: "Cheese + Papas",
       precio: 9000,
@@ -307,12 +322,14 @@ describe("crearCombo", () => {
       activo: true,
       productos: [{ productoId: "cheese-burger", cantidad: 1 }],
     });
+
+    vi.restoreAllMocks();
   });
 
   it("no inserta en combo_productos si el combo no tiene productos", async () => {
     const singleCombo = vi.fn().mockResolvedValue({
       data: {
-        id: "promo-vacia",
+        id: "promo-vacia-3f",
         nombre: "Promo Vacía",
         descripcion: "",
         precio: 1000,

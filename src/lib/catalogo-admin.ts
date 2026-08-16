@@ -19,6 +19,16 @@ export interface ComboInput {
   productos: ComboItem[];
 }
 
+export function generarId(nombre: string): string {
+  const slug = nombre
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  return `${slug}-${Date.now().toString(36)}`;
+}
+
 export function combosQueUsanProducto(combos: Combo[], productoId: string): Combo[] {
   return combos.filter((combo) => combo.productos.some((item) => item.productoId === productoId));
 }
@@ -49,6 +59,7 @@ export async function crearProducto(input: ProductoInput): Promise<Producto> {
   const { data, error } = await supabase
     .from("productos")
     .insert({
+      id: generarId(input.nombre),
       categoria: input.categoria,
       nombre: input.nombre,
       ingredientes: input.ingredientes,
@@ -96,6 +107,7 @@ export async function crearCombo(input: ComboInput): Promise<Combo> {
   const { data: comboData, error: comboError } = await supabase
     .from("combos")
     .insert({
+      id: generarId(input.nombre),
       nombre: input.nombre,
       descripcion: input.descripcion,
       precio: input.precio,
