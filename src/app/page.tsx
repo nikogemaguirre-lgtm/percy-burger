@@ -1,5 +1,4 @@
-import { productos } from "@/data/menu";
-import { combos } from "@/data/combos";
+import { obtenerProductos, obtenerCombos } from "@/lib/catalogo";
 import { ProductoCard } from "@/components/ProductoCard";
 import { ComboCard } from "@/components/ComboCard";
 import { Hero } from "@/components/Hero";
@@ -14,7 +13,8 @@ const CATEGORIAS: { key: Producto["categoria"]; titulo: string }[] = [
   { key: "bebida", titulo: "Bebidas" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const [productos, combos] = await Promise.all([obtenerProductos(), obtenerCombos()]);
   const combosActivos = combos.filter((c) => c.activo);
 
   return (
