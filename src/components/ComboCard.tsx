@@ -26,6 +26,7 @@ export function ComboCard({ combo }: { combo: Combo }) {
               nombre: combo.nombre,
               precioUnitario: combo.precio,
               cantidad: 1,
+              imagenUrl: combo.imagenUrl,
             })
           }
           className="rounded-md bg-brand-red px-4 py-2 text-sm font-semibold text-white hover:bg-brand-red/90"

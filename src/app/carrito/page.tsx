@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { productos } from "@/data/menu";
 import { ProductoCard } from "@/components/ProductoCard";
+import { logoCompletoUrl } from "@/data/logoPiezas";
+
+const SIN_FOTO = "/placeholder.svg";
 
 function formatearPrecio(valor: number): string {
   return valor.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
@@ -31,9 +34,22 @@ export default function CarritoPage() {
         {items.map((item) => (
           <li key={item.id} className="border-b border-brand-black/10 pb-4">
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-semibold text-brand-black">{item.nombre}</p>
-                <p className="text-sm text-brand-black/60">{formatearPrecio(item.precioUnitario)} c/u</p>
+              <div className="flex items-center gap-3">
+                {item.imagenUrl && item.imagenUrl !== SIN_FOTO ? (
+                  <img
+                    src={item.imagenUrl}
+                    alt=""
+                    className="h-16 w-16 flex-shrink-0 rounded-md object-cover"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-md bg-brand-black">
+                    <img src={logoCompletoUrl} alt="" aria-hidden="true" className="h-6 w-auto opacity-90" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-semibold text-brand-black">{item.nombre}</p>
+                  <p className="text-sm text-brand-black/60">{formatearPrecio(item.precioUnitario)} c/u</p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <button

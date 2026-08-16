@@ -7,6 +7,7 @@ export interface ItemCarrito {
   precioUnitario: number;
   cantidad: number;
   nota?: string;
+  imagenUrl?: string;
 }
 
 export function agregarItem(carrito: ItemCarrito[], item: ItemCarrito): ItemCarrito[] {
