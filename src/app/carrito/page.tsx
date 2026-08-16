@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { productos } from "@/data/menu";
+import { ProductoCard } from "@/components/ProductoCard";
 
 function formatearPrecio(valor: number): string {
   return valor.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
@@ -9,6 +11,7 @@ function formatearPrecio(valor: number): string {
 
 export default function CarritoPage() {
   const { items, subtotal, actualizarCantidad, quitar } = useCart();
+  const productosExtra = productos.filter((p) => p.categoria === "extra" || p.categoria === "bebida");
 
   if (items.length === 0) {
     return (
@@ -63,6 +66,14 @@ export default function CarritoPage() {
           </li>
         ))}
       </ul>
+      <section className="mb-6">
+        <h2 className="mb-3 text-lg font-semibold text-brand-black">¿Querés agregar algo más?</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {productosExtra.map((producto) => (
+            <ProductoCard key={producto.id} producto={producto} />
+          ))}
+        </div>
+      </section>
       <div className="mb-6 flex items-center justify-between text-lg font-bold text-brand-black">
         <span>Subtotal</span>
         <span>{formatearPrecio(subtotal)}</span>
