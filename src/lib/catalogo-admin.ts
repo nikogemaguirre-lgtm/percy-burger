@@ -1,6 +1,6 @@
 import type { Producto, Combo, ComboItem } from "@/data/types";
 import { createSupabaseBrowserClient } from "./supabase/client";
-import { mapRowAProducto, mapRowACombo, type ProductoRow, type ComboRow } from "./catalogo";
+import { mapRowAProducto, mapRowACombo, type ProductoRow, type ComboRow } from "./catalogo-mapeo";
 
 export interface ProductoInput {
   categoria: Producto["categoria"];
