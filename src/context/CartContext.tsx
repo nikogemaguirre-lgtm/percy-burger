@@ -6,6 +6,7 @@ import {
   agregarItem,
   quitarItem,
   actualizarCantidad,
+  actualizarNota,
   calcularSubtotal,
 } from "@/lib/cart";
 
@@ -17,6 +18,7 @@ interface CartContextValue {
   agregar: (item: ItemCarrito) => void;
   quitar: (id: string) => void;
   actualizarCantidad: (id: string, cantidad: number) => void;
+  actualizarNota: (id: string, nota: string) => void;
   vaciar: () => void;
 }
 
@@ -52,6 +54,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     agregar: (item) => setItems((actuales) => agregarItem(actuales, item)),
     quitar: (id) => setItems((actuales) => quitarItem(actuales, id)),
     actualizarCantidad: (id, cantidad) => setItems((actuales) => actualizarCantidad(actuales, id, cantidad)),
+    actualizarNota: (id, nota) => setItems((actuales) => actualizarNota(actuales, id, nota)),
     vaciar: () => setItems([]),
   };
 

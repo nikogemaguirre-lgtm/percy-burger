@@ -10,7 +10,7 @@ function formatearPrecio(valor: number): string {
 }
 
 export default function CarritoPage() {
-  const { items, subtotal, actualizarCantidad, quitar } = useCart();
+  const { items, subtotal, actualizarCantidad, actualizarNota, quitar } = useCart();
   const productosExtra = productos.filter((p) => p.categoria === "extra" || p.categoria === "bebida");
 
   if (items.length === 0) {
@@ -29,40 +29,46 @@ export default function CarritoPage() {
       <h1 className="mb-6 text-2xl font-bold text-brand-black">Tu carrito</h1>
       <ul className="mb-6 flex flex-col gap-4">
         {items.map((item) => (
-          <li
-            key={item.id}
-            className="flex items-center justify-between gap-4 border-b border-brand-black/10 pb-4"
-          >
-            <div>
-              <p className="font-semibold text-brand-black">{item.nombre}</p>
-              <p className="text-sm text-brand-black/60">{formatearPrecio(item.precioUnitario)} c/u</p>
+          <li key={item.id} className="border-b border-brand-black/10 pb-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold text-brand-black">{item.nombre}</p>
+                <p className="text-sm text-brand-black/60">{formatearPrecio(item.precioUnitario)} c/u</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
+                  className="h-8 w-8 rounded-full border border-brand-black/20 text-brand-black"
+                  aria-label={`Quitar una unidad de ${item.nombre}`}
+                >
+                  −
+                </button>
+                <span className="w-6 text-center">{item.cantidad}</span>
+                <button
+                  type="button"
+                  onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
+                  className="h-8 w-8 rounded-full border border-brand-black/20 text-brand-black"
+                  aria-label={`Agregar una unidad de ${item.nombre}`}
+                >
+                  +
+                </button>
+                <button
+                  type="button"
+                  onClick={() => quitar(item.id)}
+                  className="ml-2 text-sm text-brand-red underline"
+                >
+                  Quitar
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => actualizarCantidad(item.id, item.cantidad - 1)}
-                className="h-8 w-8 rounded-full border border-brand-black/20 text-brand-black"
-                aria-label={`Quitar una unidad de ${item.nombre}`}
-              >
-                −
-              </button>
-              <span className="w-6 text-center">{item.cantidad}</span>
-              <button
-                type="button"
-                onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}
-                className="h-8 w-8 rounded-full border border-brand-black/20 text-brand-black"
-                aria-label={`Agregar una unidad de ${item.nombre}`}
-              >
-                +
-              </button>
-              <button
-                type="button"
-                onClick={() => quitar(item.id)}
-                className="ml-2 text-sm text-brand-red underline"
-              >
-                Quitar
-              </button>
-            </div>
+            <input
+              type="text"
+              value={item.nota ?? ""}
+              onChange={(e) => actualizarNota(item.id, e.target.value)}
+              placeholder="Aclaraciones (opcional) — ej. sin cebolla"
+              className="mt-2 w-full rounded-md border border-brand-black/20 px-3 py-1 text-sm"
+            />
           </li>
         ))}
       </ul>
