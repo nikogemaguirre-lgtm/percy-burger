@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { Producto, Combo } from "@/data/types";
 import { AdminModal } from "./AdminModal";
 import { ProductoForm } from "./ProductoForm";
@@ -13,23 +13,24 @@ import {
 } from "@/lib/catalogo-admin";
 
 export function ProductosAdmin({
-  productosIniciales,
+  productos,
   combos,
+  onProductosChange,
 }: {
-  productosIniciales: Producto[];
+  productos: Producto[];
   combos: Combo[];
+  onProductosChange: Dispatch<SetStateAction<Producto[]>>;
 }) {
-  const [productos, setProductos] = useState(productosIniciales);
   const [editando, setEditando] = useState<Producto | "nuevo" | null>(null);
   const [avisoBorrado, setAvisoBorrado] = useState<{ producto: Producto; combos: Combo[] } | null>(null);
 
   async function manejarGuardar(input: ProductoInput) {
     if (editando === "nuevo") {
       const creado = await crearProducto(input);
-      setProductos((prev) => [...prev, creado]);
+      onProductosChange((prev) => [...prev, creado]);
     } else if (editando) {
       const actualizado = await actualizarProducto(editando.id, input);
-      setProductos((prev) => prev.map((p) => (p.id === actualizado.id ? actualizado : p)));
+      onProductosChange((prev) => prev.map((p) => (p.id === actualizado.id ? actualizado : p)));
     }
     setEditando(null);
   }
@@ -42,7 +43,7 @@ export function ProductosAdmin({
     }
     if (!window.confirm(`¿Borrar "${producto.nombre}"?`)) return;
     borrarProducto(producto.id).then(() => {
-      setProductos((prev) => prev.filter((p) => p.id !== producto.id));
+      onProductosChange((prev) => prev.filter((p) => p.id !== producto.id));
     });
   }
 

@@ -1,28 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { Producto, Combo } from "@/data/types";
 import { AdminModal } from "./AdminModal";
 import { ComboForm } from "./ComboForm";
 import { ComboInput, crearCombo, actualizarCombo, borrarCombo } from "@/lib/catalogo-admin";
 
 export function CombosAdmin({
-  combosIniciales,
+  combos,
   productosDisponibles,
+  onCombosChange,
 }: {
-  combosIniciales: Combo[];
+  combos: Combo[];
   productosDisponibles: Producto[];
+  onCombosChange: Dispatch<SetStateAction<Combo[]>>;
 }) {
-  const [combos, setCombos] = useState(combosIniciales);
   const [editando, setEditando] = useState<Combo | "nuevo" | null>(null);
 
   async function manejarGuardar(input: ComboInput) {
     if (editando === "nuevo") {
       const creado = await crearCombo(input);
-      setCombos((prev) => [...prev, creado]);
+      onCombosChange((prev) => [...prev, creado]);
     } else if (editando) {
       const actualizado = await actualizarCombo(editando.id, input);
-      setCombos((prev) => prev.map((c) => (c.id === actualizado.id ? actualizado : c)));
+      onCombosChange((prev) => prev.map((c) => (c.id === actualizado.id ? actualizado : c)));
     }
     setEditando(null);
   }
@@ -30,7 +31,7 @@ export function CombosAdmin({
   function manejarBorrar(combo: Combo) {
     if (!window.confirm(`¿Borrar "${combo.nombre}"?`)) return;
     borrarCombo(combo.id).then(() => {
-      setCombos((prev) => prev.filter((c) => c.id !== combo.id));
+      onCombosChange((prev) => prev.filter((c) => c.id !== combo.id));
     });
   }
 
