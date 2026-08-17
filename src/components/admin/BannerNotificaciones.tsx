@@ -10,9 +10,13 @@ function suscribirse() {
 }
 
 function obtenerEstadoInicialCliente(): Estado {
+  // En iPhone, Safari solo expone PushManager cuando la página ya está instalada
+  // en la pantalla de inicio — hay que chequear esto antes de soportaPush(),
+  // si no el aviso de "instalá esta página primero" nunca llega a mostrarse.
+  if (esIphoneSinInstalar()) return "instalar-primero";
   if (!soportaPush()) return "oculto";
   if (Notification.permission === "denied" || Notification.permission === "granted") return "oculto";
-  return esIphoneSinInstalar() ? "instalar-primero" : "ofrecer";
+  return "ofrecer";
 }
 
 function obtenerEstadoInicialServidor(): Estado {
