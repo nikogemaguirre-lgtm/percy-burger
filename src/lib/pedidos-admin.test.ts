@@ -1,12 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { mockFrom } = vi.hoisted(() => ({ mockFrom: vi.fn() }));
+const { mockFrom, mockFromCliente } = vi.hoisted(() => ({ mockFrom: vi.fn(), mockFromCliente: vi.fn() }));
 
 vi.mock("./supabase/server", () => ({
   createSupabaseServerClient: async () => ({ from: mockFrom }),
 }));
 
-import { siguienteEstado, obtenerPedidosActivos, obtenerPedidosEntregados } from "./pedidos-admin";
+vi.mock("./supabase/client", () => ({
+  createSupabaseBrowserClient: () => ({ from: mockFromCliente }),
+}));
+
+import {
+  siguienteEstado,
+  obtenerPedidosActivos,
+  obtenerPedidosEntregados,
+  avanzarEstadoPedido,
+} from "./pedidos-admin";
 
 beforeEach(() => {
   mockFrom.mockReset();
@@ -91,5 +100,39 @@ describe("obtenerPedidosEntregados", () => {
     expect(eq).toHaveBeenCalledWith("estado", "entregado");
     expect(order).toHaveBeenCalledWith("creado_en", { ascending: false });
     expect(resultado[0].estado).toBe("entregado");
+  });
+});
+
+describe("avanzarEstadoPedido", () => {
+  beforeEach(() => {
+    mockFromCliente.mockReset();
+  });
+
+  it("actualiza el estado al siguiente y lo devuelve", async () => {
+    const eq = vi.fn().mockResolvedValue({ error: null });
+    const update = vi.fn(() => ({ eq }));
+    mockFromCliente.mockReturnValue({ update });
+
+    const resultado = await avanzarEstadoPedido("pedido-1", "nuevo");
+
+    expect(mockFromCliente).toHaveBeenCalledWith("pedidos");
+    expect(update).toHaveBeenCalledWith({ estado: "en_preparacion" });
+    expect(eq).toHaveBeenCalledWith("id", "pedido-1");
+    expect(resultado).toBe("en_preparacion");
+  });
+
+  it("lanza un error si Supabase rechaza la actualización", async () => {
+    const eq = vi.fn().mockResolvedValue({ error: { message: "fallo" } });
+    const update = vi.fn(() => ({ eq }));
+    mockFromCliente.mockReturnValue({ update });
+
+    await expect(avanzarEstadoPedido("pedido-1", "nuevo")).rejects.toThrow("fallo");
+  });
+
+  it("lanza un error si el pedido ya está entregado", async () => {
+    await expect(avanzarEstadoPedido("pedido-1", "entregado")).rejects.toThrow(
+      "El pedido ya está en el último estado.",
+    );
+    expect(mockFromCliente).not.toHaveBeenCalled();
   });
 });

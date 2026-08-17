@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "./supabase/server";
+import { createSupabaseBrowserClient } from "./supabase/client";
 
 export type EstadoPedido = "nuevo" | "en_preparacion" | "listo" | "entregado";
 
@@ -91,4 +92,29 @@ export async function obtenerPedidosEntregados(): Promise<PedidoConItems[]> {
     .order("creado_en", { ascending: false });
   if (error) throw new Error(`No se pudieron obtener los pedidos entregados: ${error.message}`);
   return (data as PedidoRow[]).map(mapRowAPedido);
+}
+
+export async function avanzarEstadoPedido(id: string, estadoActual: EstadoPedido): Promise<EstadoPedido> {
+  const nuevo = siguienteEstado(estadoActual);
+  if (!nuevo) throw new Error("El pedido ya está en el último estado.");
+
+  const supabase = createSupabaseBrowserClient();
+  const { error } = await supabase.from("pedidos").update({ estado: nuevo }).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  return nuevo;
+}
+
+export function suscribirsePedidos(alCambiar: () => void): () => void {
+  const supabase = createSupabaseBrowserClient();
+  const canal = supabase
+    .channel("pedidos-realtime")
+    .on("postgres_changes", { event: "*", schema: "public", table: "pedidos" }, () => {
+      alCambiar();
+    })
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(canal);
+  };
 }
