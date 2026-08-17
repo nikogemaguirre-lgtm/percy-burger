@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { PedidoConItems } from "@/lib/pedidos-mapeo";
 import {
-  PedidoConItems,
-  obtenerPedidosActivos,
-  obtenerPedidosEntregados,
+  obtenerPedidosActivosCliente,
+  obtenerPedidosEntregadosCliente,
   avanzarEstadoPedido,
   suscribirsePedidos,
-} from "@/lib/pedidos-admin";
+} from "@/lib/pedidos-admin-cliente";
 import { PedidoCard } from "./PedidoCard";
 
 type Vista = "activos" | "historial";
@@ -18,16 +18,16 @@ export function PedidosAdmin({ pedidosIniciales }: { pedidosIniciales: PedidoCon
 
   useEffect(() => {
     if (vista === "activos") {
-      obtenerPedidosActivos().then(setPedidos);
+      obtenerPedidosActivosCliente().then(setPedidos);
     } else {
-      obtenerPedidosEntregados().then(setPedidos);
+      obtenerPedidosEntregadosCliente().then(setPedidos);
     }
   }, [vista]);
 
   useEffect(() => {
     if (vista !== "activos") return;
     const cancelar = suscribirsePedidos(() => {
-      obtenerPedidosActivos().then(setPedidos);
+      obtenerPedidosActivosCliente().then(setPedidos);
     });
     return cancelar;
   }, [vista]);

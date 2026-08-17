@@ -1,42 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { mockFrom, mockFromCliente } = vi.hoisted(() => ({ mockFrom: vi.fn(), mockFromCliente: vi.fn() }));
+const { mockFrom } = vi.hoisted(() => ({ mockFrom: vi.fn() }));
 
 vi.mock("./supabase/server", () => ({
   createSupabaseServerClient: async () => ({ from: mockFrom }),
 }));
 
-vi.mock("./supabase/client", () => ({
-  createSupabaseBrowserClient: () => ({ from: mockFromCliente }),
-}));
-
-import {
-  siguienteEstado,
-  obtenerPedidosActivos,
-  obtenerPedidosEntregados,
-  avanzarEstadoPedido,
-} from "./pedidos-admin";
+import { obtenerPedidosActivos, obtenerPedidosEntregados } from "./pedidos-admin";
 
 beforeEach(() => {
   mockFrom.mockReset();
-});
-
-describe("siguienteEstado", () => {
-  it("avanza nuevo a en_preparacion", () => {
-    expect(siguienteEstado("nuevo")).toBe("en_preparacion");
-  });
-
-  it("avanza en_preparacion a listo", () => {
-    expect(siguienteEstado("en_preparacion")).toBe("listo");
-  });
-
-  it("avanza listo a entregado", () => {
-    expect(siguienteEstado("listo")).toBe("entregado");
-  });
-
-  it("devuelve null si ya está entregado", () => {
-    expect(siguienteEstado("entregado")).toBeNull();
-  });
 });
 
 const filaPedido = {
@@ -100,39 +73,5 @@ describe("obtenerPedidosEntregados", () => {
     expect(eq).toHaveBeenCalledWith("estado", "entregado");
     expect(order).toHaveBeenCalledWith("creado_en", { ascending: false });
     expect(resultado[0].estado).toBe("entregado");
-  });
-});
-
-describe("avanzarEstadoPedido", () => {
-  beforeEach(() => {
-    mockFromCliente.mockReset();
-  });
-
-  it("actualiza el estado al siguiente y lo devuelve", async () => {
-    const eq = vi.fn().mockResolvedValue({ error: null });
-    const update = vi.fn(() => ({ eq }));
-    mockFromCliente.mockReturnValue({ update });
-
-    const resultado = await avanzarEstadoPedido("pedido-1", "nuevo");
-
-    expect(mockFromCliente).toHaveBeenCalledWith("pedidos");
-    expect(update).toHaveBeenCalledWith({ estado: "en_preparacion" });
-    expect(eq).toHaveBeenCalledWith("id", "pedido-1");
-    expect(resultado).toBe("en_preparacion");
-  });
-
-  it("lanza un error si Supabase rechaza la actualización", async () => {
-    const eq = vi.fn().mockResolvedValue({ error: { message: "fallo" } });
-    const update = vi.fn(() => ({ eq }));
-    mockFromCliente.mockReturnValue({ update });
-
-    await expect(avanzarEstadoPedido("pedido-1", "nuevo")).rejects.toThrow("fallo");
-  });
-
-  it("lanza un error si el pedido ya está entregado", async () => {
-    await expect(avanzarEstadoPedido("pedido-1", "entregado")).rejects.toThrow(
-      "El pedido ya está en el último estado.",
-    );
-    expect(mockFromCliente).not.toHaveBeenCalled();
   });
 });

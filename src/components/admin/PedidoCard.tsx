@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { EstadoPedido, ETIQUETAS_ESTADO, PedidoConItems, siguienteEstado } from "@/lib/pedidos-admin";
+import { EstadoPedido, ETIQUETAS_ESTADO, PedidoConItems, siguienteEstado } from "@/lib/pedidos-mapeo";
 
 function formatearPrecio(valor: number): string {
   return valor.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
