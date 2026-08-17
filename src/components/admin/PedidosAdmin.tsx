@@ -6,11 +6,12 @@ import {
   obtenerPedidosActivosCliente,
   obtenerPedidosEntregadosCliente,
   avanzarEstadoPedido,
-  suscribirsePedidos,
 } from "@/lib/pedidos-admin-cliente";
 import { PedidoCard } from "./PedidoCard";
 
 type Vista = "activos" | "historial";
+
+const INTERVALO_REFRESCO_MS = 15000;
 
 export function PedidosAdmin({ pedidosIniciales }: { pedidosIniciales: PedidoConItems[] }) {
   const [vista, setVista] = useState<Vista>("activos");
@@ -26,14 +27,16 @@ export function PedidosAdmin({ pedidosIniciales }: { pedidosIniciales: PedidoCon
 
   useEffect(() => {
     if (vista !== "activos") return;
-    const cancelar = suscribirsePedidos(() => {
+    const intervalo = setInterval(() => {
       obtenerPedidosActivosCliente().then(setPedidos);
-    });
-    return cancelar;
+    }, INTERVALO_REFRESCO_MS);
+    return () => clearInterval(intervalo);
   }, [vista]);
 
   async function manejarAvanzar(pedido: PedidoConItems) {
     await avanzarEstadoPedido(pedido.id, pedido.estado);
+    const actualizados = await obtenerPedidosActivosCliente();
+    setPedidos(actualizados);
   }
 
   return (

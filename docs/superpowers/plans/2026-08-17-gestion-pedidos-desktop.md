@@ -6,7 +6,10 @@
 
 **Architecture:** Ruta separada, Server Component de carga inicial + Client Component con suscripción a Supabase Realtime. Lectura/mutación en `pedidos-admin.ts` con el mismo patrón client-side ya usado en `catalogo-admin.ts`.
 
-**Tech Stack:** Next.js 16 (App Router), React 19, `@supabase/supabase-js` (incluye Realtime, sin dependencia nueva), Vitest.
+**Tech Stack:** Next.js 16 (App Router), React 19, `@supabase/supabase-js`, Vitest.
+
+> [!note] Actualización tras implementación (2026-08-17)
+> Este plan fue escrito y ejecutado usando Supabase Realtime (Tasks 1 y 4). Durante la verificación (Task 7) Realtime resultó intermitente e impredecible en este proyecto de Supabase — funcionó solo una vez de ocho intentos, descartando publicación, RLS, HMR y conexiones fantasma como causa. Se pivotó a **polling cada 15 segundos** en `PedidosAdmin.tsx`, eliminando `suscribirsePedidos` por completo. Los pasos de Task 1 (`alter publication`) y la función `suscribirsePedidos` de Task 4 quedaron sin efecto en el código final — se dejan documentados igual porque reflejan lo que efectivamente se ejecutó en esta sesión. Ver la spec (`docs/superpowers/specs/2026-08-17-gestion-pedidos-desktop-design.md`) para el detalle de la arquitectura final.
 
 ## Global Constraints
 

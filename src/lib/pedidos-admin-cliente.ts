@@ -33,17 +33,3 @@ export async function avanzarEstadoPedido(id: string, estadoActual: EstadoPedido
 
   return nuevo;
 }
-
-export function suscribirsePedidos(alCambiar: () => void): () => void {
-  const supabase = createSupabaseBrowserClient();
-  const canal = supabase
-    .channel("pedidos-realtime")
-    .on("postgres_changes", { event: "*", schema: "public", table: "pedidos" }, () => {
-      alCambiar();
-    })
-    .subscribe();
-
-  return () => {
-    supabase.removeChannel(canal);
-  };
-}
