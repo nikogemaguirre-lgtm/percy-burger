@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { ZonaSelect, ZONA_A_COORDINAR } from "@/components/ZonaSelect";
 import { zonas } from "@/data/zonas";
 import { construirTextoPedido, construirUrlWhatsapp } from "@/lib/whatsapp";
+import { guardarPedido } from "@/lib/pedidos";
 
 type Modalidad = "delivery" | "retiro";
 
@@ -22,7 +23,7 @@ export default function CheckoutPage() {
   const aCoordinar = modalidad === "delivery" && zonaId === ZONA_A_COORDINAR;
   const costoEnvio = modalidad === "delivery" && zonaSeleccionada ? zonaSeleccionada.costoEnvio : 0;
 
-  function manejarConfirmar() {
+  async function manejarConfirmar() {
     if (!nombre.trim() || !telefono.trim()) {
       setError("Completá tu nombre y teléfono.");
       return;
@@ -33,14 +34,18 @@ export default function CheckoutPage() {
     }
     setError(null);
 
-    const texto = construirTextoPedido(items, subtotal, costoEnvio, {
+    const datos = {
       nombre,
       telefono,
       modalidad,
       direccion: modalidad === "delivery" ? direccion : undefined,
       zonaNombre: aCoordinar ? undefined : zonaSeleccionada?.nombre,
       aCoordinar,
-    });
+    };
+
+    await guardarPedido(items, subtotal, costoEnvio, datos);
+
+    const texto = construirTextoPedido(items, subtotal, costoEnvio, datos);
 
     vaciar();
     window.location.href = construirUrlWhatsapp(texto);
