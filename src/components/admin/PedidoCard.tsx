@@ -1,27 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { EstadoPedido, ETIQUETAS_ESTADO, PedidoConItems, siguienteEstado } from "@/lib/pedidos-mapeo";
-
-function formatearPrecio(valor: number): string {
-  return valor.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
-}
-
-function formatearHora(creadoEn: string): string {
-  return new Date(creadoEn).toLocaleString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-const COLOR_ESTADO: Record<EstadoPedido, string> = {
-  nuevo: "bg-brand-red text-white",
-  en_preparacion: "bg-brand-orange text-white",
-  listo: "bg-brand-yellow text-brand-black",
-  entregado: "bg-brand-black/10 text-brand-black/70",
-};
+import { COLOR_ESTADO, ETIQUETAS_ESTADO, PedidoConItems, siguienteEstado } from "@/lib/pedidos-mapeo";
+import { formatearPrecio, formatearHora } from "@/lib/formato-pedido";
 
 export function PedidoCard({
   pedido,

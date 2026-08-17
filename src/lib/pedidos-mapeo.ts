@@ -68,3 +68,10 @@ export function mapRowAPedido(row: PedidoRow): PedidoConItems {
     })),
   };
 }
+
+export const COLOR_ESTADO: Record<EstadoPedido, string> = {
+  nuevo: "bg-brand-red text-white",
+  en_preparacion: "bg-brand-orange text-white",
+  listo: "bg-brand-yellow text-brand-black",
+  entregado: "bg-brand-black/10 text-brand-black/70",
+};
