@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import type { PedidoConItems } from "@/lib/pedidos-mapeo";
 import { obtenerPedidosEntregadosCliente } from "@/lib/pedidos-admin-cliente";
 import { usePedidosActivos } from "@/lib/usePedidosActivos";
+import { agruparHistorial } from "@/lib/historial-mapeo";
 import { PedidoCard } from "./PedidoCard";
+import { HistorialAgrupado } from "./HistorialAgrupado";
 
 type Vista = "activos" | "historial";
 
@@ -18,8 +20,6 @@ export function PedidosAdminDesktop({ pedidosIniciales }: { pedidosIniciales: Pe
       obtenerPedidosEntregadosCliente().then(setHistorial);
     }
   }, [vista]);
-
-  const pedidos = vista === "activos" ? activos : historial;
 
   return (
     <div>
@@ -44,20 +44,23 @@ export function PedidosAdminDesktop({ pedidosIniciales }: { pedidosIniciales: Pe
         </button>
       </div>
 
-      {pedidos.length === 0 ? (
-        <p className="text-sm text-brand-black/60">
-          {vista === "activos" ? "No hay pedidos activos." : "Todavía no hay pedidos entregados."}
-        </p>
+      {vista === "activos" ? (
+        activos.length === 0 ? (
+          <p className="text-sm text-brand-black/60">No hay pedidos activos.</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {activos.map((pedido) => (
+              <PedidoCard key={pedido.id} pedido={pedido} onAvanzar={() => avanzar(pedido)} />
+            ))}
+          </div>
+        )
+      ) : historial.length === 0 ? (
+        <p className="text-sm text-brand-black/60">Todavía no hay pedidos entregados.</p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {pedidos.map((pedido) => (
-            <PedidoCard
-              key={pedido.id}
-              pedido={pedido}
-              onAvanzar={vista === "activos" ? () => avanzar(pedido) : undefined}
-            />
-          ))}
-        </div>
+        <HistorialAgrupado
+          grupos={agruparHistorial(historial)}
+          renderPedido={(pedido) => <PedidoCard key={pedido.id} pedido={pedido} />}
+        />
       )}
     </div>
   );
