@@ -537,9 +537,9 @@ Run (desde `~/Percy Burger`, con `.env.local` cargado):
 ```bash
 set -a; source .env.local; set +a
 
-HOY=$(date -u +"%Y-%m-%dT12:00:00Z")
-SEIS_DIAS=$(date -u -v-6d +"%Y-%m-%dT12:00:00Z")
-OCHO_DIAS=$(date -u -v-8d +"%Y-%m-%dT12:00:00Z")
+HOY=$(date +"%Y-%m-%dT12:00:00%z")
+SEIS_DIAS=$(date -v-6d +"%Y-%m-%dT12:00:00%z")
+OCHO_DIAS=$(date -v-8d +"%Y-%m-%dT12:00:00%z")
 
 for par in "Test Hoy:5000:$HOY" "Test Seis Dias:3000:$SEIS_DIAS" "Test Ocho Dias:4000:$OCHO_DIAS"; do
   nombre="${par%%:*}"; resto="${par#*:}"; monto="${resto%%:*}"; fecha="${resto#*:}"
