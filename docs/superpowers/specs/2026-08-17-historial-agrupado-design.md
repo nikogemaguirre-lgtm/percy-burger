@@ -35,8 +35,8 @@ export function agruparHistorial(pedidos: PedidoConItems[], ahora?: Date): Grupo
 
 ## Reglas de agrupado
 
-- **Últimos 7 días corridos** (hoy + los 6 anteriores, contando por fecha calendario, no por horas exactas): un grupo por día (`tipo: "dia"`), etiquetado con la fecha en formato largo (ej. "17 de agosto"). Sin casos especiales de "Hoy"/"Ayer" — se mantiene simple, solo la fecha.
-- **Más de 7 días atrás**: se agrupan por **semana calendario, lunes a domingo** (`tipo: "semana"`), etiquetada con el rango de fechas: mismo mes → "11 al 17 de agosto"; cruza de mes → "28 de julio al 3 de agosto".
+- **Últimos 7 días corridos** (hoy + los 6 anteriores — días 0 a 6 contando desde hoy, por fecha calendario, no por horas exactas): un grupo por día (`tipo: "dia"`), etiquetado con la fecha en formato largo (ej. "17 de agosto"). Sin casos especiales de "Hoy"/"Ayer" — se mantiene simple, solo la fecha.
+- **7 días atrás o más** (a partir del primer día fuera de esa ventana de 7): se agrupan por **semana calendario, lunes a domingo** (`tipo: "semana"`), etiquetada con el rango de fechas: mismo mes → "11 al 17 de agosto"; cruza de mes → "28 de julio al 3 de agosto".
 - El corte de "hoy" y los límites de día/semana usan el reloj y la zona horaria del propio navegador donde corre la vista (mismo criterio que ya usa el resto de la app, ej. `formatearHora` en `formato-pedido.ts`) — no hace falta manejo de zona horaria aparte, es un negocio de una sola ubicación.
 - Cada grupo trae su `total` ya calculado: suma de `pedido.total` de todos los pedidos de ese grupo.
 - Un pedido sin entregar (no debería llegar acá, pero por las dudas) no se contempla — `agruparHistorial` recibe siempre la lista ya filtrada a `estado === "entregado"`, como hoy.
@@ -54,8 +54,8 @@ En mobile se agrega el mismo toggle "Activos / Historial" que ya tiene `PedidosA
 `src/lib/historial-mapeo.test.ts` (función pura, con `ahora` fijo para determinismo):
 
 - Pedido de hoy → un grupo de día con la etiqueta de hoy.
-- Pedido de exactamente 7 días atrás → todavía día suelto, no cae en semana.
-- Pedido de 8 días atrás → cae en un grupo de semana con el rango lunes-domingo correcto.
+- Pedido de exactamente 6 días atrás → todavía día suelto (último día de la ventana de 7).
+- Pedido de exactamente 7 días atrás → ya cae en un grupo de semana (primer día fuera de la ventana), con el rango lunes-domingo correcto.
 - Varios pedidos el mismo día → un solo grupo de día, `total` sumado correctamente.
 - Una semana que cruza de mes → etiqueta con los dos nombres de mes.
 - Orden de grupos (más nuevo primero) y de pedidos dentro de cada grupo (más nuevo primero).
