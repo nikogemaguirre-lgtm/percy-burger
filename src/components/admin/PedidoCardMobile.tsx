@@ -9,7 +9,7 @@ export function PedidoCardMobile({
   onAvanzar,
 }: {
   pedido: PedidoConItems;
-  onAvanzar: () => Promise<void>;
+  onAvanzar?: () => Promise<void>;
 }) {
   const [avanzando, setAvanzando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +17,7 @@ export function PedidoCardMobile({
   const proximoEstado = siguienteEstado(pedido.estado);
 
   async function manejarAvanzar() {
+    if (!onAvanzar) return;
     setAvanzando(true);
     setError(null);
     try {
@@ -64,7 +65,7 @@ export function PedidoCardMobile({
 
       {error && <p className="mb-2 text-sm text-brand-red">{error}</p>}
 
-      {proximoEstado && (
+      {onAvanzar && proximoEstado && (
         <button
           type="button"
           onClick={manejarAvanzar}
